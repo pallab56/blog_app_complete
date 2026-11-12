@@ -1,3 +1,4 @@
+import 'package:blog_rivaan/core/route/route_name.dart';
 import 'package:blog_rivaan/core/theme/app_pallete.dart';
 import 'package:blog_rivaan/features/auth/presentation/widgets/auth_field.dart';
 import 'package:blog_rivaan/features/auth/presentation/widgets/auth_gradient_button.dart';
@@ -19,6 +20,7 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(),
       body: Padding(
         padding: const EdgeInsets.all(15.0),
         child: SafeArea(
@@ -52,19 +54,24 @@ class _SignUpPageState extends State<SignUpPage> {
                 AuthGradientButton(),
                 SizedBox(height: 20),
             
-                RichText(
-                  text: TextSpan(
-                    text: 'Allready have an account? ',
-                    style: Theme.of(context).textTheme.titleMedium,
-                    children: [
-                      TextSpan(
-                        text: 'Sign In ',
-                        style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                          color: AppPallete.gradient2,
-                          fontWeight: FontWeight.w600,
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(context, RouteName.login_page);
+                  },
+                  child: RichText(
+                    text: TextSpan(
+                      text: 'Allready have an account? ',
+                      style: Theme.of(context).textTheme.titleMedium,
+                      children: [
+                        TextSpan(
+                          text: 'Sign In ',
+                          style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                            color: AppPallete.gradient2,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ],

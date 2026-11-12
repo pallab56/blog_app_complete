@@ -1,5 +1,6 @@
+import 'package:blog_rivaan/core/route/app_routes.dart';
+import 'package:blog_rivaan/core/route/route_name.dart';
 import 'package:blog_rivaan/core/theme/app_theme.dart';
-import 'package:blog_rivaan/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -16,7 +17,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Blog_App',
       theme: AppTheme.darkThemeMode,
-      home: SignUpPage(),
+      initialRoute: RouteName.login_page,
+      onGenerateRoute: Routes.generateRoute,
     );
   }
 }
