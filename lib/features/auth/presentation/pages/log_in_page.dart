@@ -50,7 +50,9 @@ class _LogInPageState extends State<LogInPage> {
                   isObsecureText: true,
                 ),
                 SizedBox(height: 20),
-                AuthGradientButton(),
+                AuthGradientButton(buttonText: 'Sign In',onpressed: () {
+                  
+                },),
                 SizedBox(height: 20),
 
                 GestureDetector(
