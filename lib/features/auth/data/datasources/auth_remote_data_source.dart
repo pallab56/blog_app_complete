@@ -9,7 +9,7 @@ abstract interface class AuthRemoteDataSource {
     required String password,
   });
   Future<UserModel> loginWithEmailPassword({
-    required String name,
+    
     required String email,
     required String password,
   });
@@ -20,12 +20,23 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   AuthRemoteDataSourceImpl({required this.supabaseClient});
   @override
   Future<UserModel> loginWithEmailPassword({
-    required String name,
+   
     required String email,
     required String password,
-  }) {
-    // TODO: implement loginWithEmailPassword
-    throw UnimplementedError();
+  }) async{
+    try {
+      final response = await supabaseClient.auth.signInWithPassword(
+        password: password,
+        email: email,
+        
+      );
+      if (response.user == null) {
+        throw ServerExceptions('User is null');
+      }
+      return UserModel.fromJson(response.user!.toJson());
+    } catch (e) {
+      throw ServerExceptions(e.toString());
+    }
   }
 
   @override
