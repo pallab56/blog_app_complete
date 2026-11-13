@@ -1,5 +1,7 @@
+import 'package:blog_rivaan/core/common/widgets/loader.dart';
 import 'package:blog_rivaan/core/route/route_name.dart';
 import 'package:blog_rivaan/core/theme/app_pallete.dart';
+import 'package:blog_rivaan/core/utils/show_snackbar.dart';
 import 'package:blog_rivaan/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:blog_rivaan/features/auth/presentation/widgets/auth_field.dart';
 import 'package:blog_rivaan/features/auth/presentation/widgets/auth_gradient_button.dart';
@@ -35,8 +37,7 @@ class _SignUpPageState extends State<SignUpPage> {
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthFailure) {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text(state.msg)));
+            showSnackbar(context, state.msg);
             print(state.msg);
           }
           if (state is AuthSuccess) {
@@ -81,7 +82,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     const SizedBox(height: 20),
 
                     if (state is AuthLoading)
-                      const CircularProgressIndicator()
+                      Loader()
                     else
                       AuthGradientButton(
                         buttonText: 'Sign Up',

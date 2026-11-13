@@ -1,3 +1,4 @@
+import 'package:blog_rivaan/features/auth/domain/entity/user.dart';
 import 'package:blog_rivaan/features/auth/domain/usecases/user_sign_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,6 +13,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       super(AuthInitial()) {
     on<AuthSignUp>((event, emit) async {
       print("${event.email} ${event.password}");
+      emit(AuthLoading());
       final res = await _userSignUp(
         UserSignUpPrams(
           email: event.email,
@@ -19,9 +21,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           name: event.name,
         ),
       );
+
       res.fold(
-        (l) => emit(AuthFailure(msg: l.msg)),
-        (r) => emit(AuthSuccess(uid: r)),
+        (failure) => emit(AuthFailure(msg: failure.msg)),
+        (user) => emit(AuthSuccess(user: user)),
       );
     });
   }

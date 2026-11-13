@@ -1,13 +1,14 @@
 import 'package:blog_rivaan/core/error/failures.dart';
 import 'package:blog_rivaan/core/usecase/usecase.dart';
+import 'package:blog_rivaan/features/auth/domain/entity/user.dart';
 import 'package:blog_rivaan/features/auth/domain/repository/auth_repository.dart';
 import 'package:fpdart/src/either.dart';
 
-class UserSignUp implements UseCase<String, UserSignUpPrams> {
+class UserSignUp implements UseCase<User, UserSignUpPrams> {
   final AuthRepository authRepository;
   UserSignUp(this.authRepository);
   @override
-  Future<Either<Failure, String>> call(UserSignUpPrams params) async {
+  Future<Either<Failure, User>> call(UserSignUpPrams params) async {
    return await  authRepository.signupWithEmailAndPassword(
       name: params.name,
       email: params.email,
