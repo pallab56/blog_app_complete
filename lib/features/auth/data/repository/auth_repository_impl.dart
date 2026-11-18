@@ -10,6 +10,20 @@ class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
 
   AuthRepositoryImpl({required this.remoteDataSource});
+
+  @override
+  Future<Either<Failure, User>> currentUser() async {
+    try {
+      final user = await remoteDataSource.getCurrentUserData();
+      if (user == null) {
+        return left(Failure(msg: 'User Not Logged In!!!'));
+      }
+      return right(user);
+    } on ServerExceptions catch (e) {
+      return left(Failure(msg: e.msg));
+    }
+  }
+
   @override
   Future<Either<Failure, User>> loginWithEmailAndPassword({
     required String email,
@@ -44,7 +58,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
       return right(user);
     } on sb.AuthException catch (e) {
-      return left(Failure(msg:e.message));
+      return left(Failure(msg: e.message));
     } on ServerExceptions catch (e) {
       return left(Failure(msg: e.msg));
     }

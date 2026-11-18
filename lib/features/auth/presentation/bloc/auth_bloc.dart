@@ -1,4 +1,6 @@
+import 'package:blog_rivaan/core/usecase/usecase.dart';
 import 'package:blog_rivaan/features/auth/domain/entity/user.dart';
+import 'package:blog_rivaan/features/auth/domain/usecases/current_user.dart';
 import 'package:blog_rivaan/features/auth/domain/usecases/user_log_in.dart';
 import 'package:blog_rivaan/features/auth/domain/usecases/user_sign_up.dart';
 import 'package:flutter/material.dart';
@@ -10,12 +12,30 @@ part 'auth_state.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final UserSignUp _userSignUp;
   final UserLogIn _userLogIn;
-  AuthBloc({required UserSignUp userSignUp, required UserLogIn userLogIn})
-    : _userSignUp = userSignUp,
-      _userLogIn = userLogIn,
-      super(AuthInitial()) {
+  final CurrentUser _currentUser;
+  AuthBloc({
+    required UserSignUp userSignUp,
+    required UserLogIn userLogIn,
+    required CurrentUser currentUser,
+  }) : _userSignUp = userSignUp,
+       _userLogIn = userLogIn,
+       _currentUser = currentUser,
+       super(AuthInitial()) {
     on<AuthSignUp>(_onAuthSignUp);
     on<AuthLogIn>(_onAuthLogIn);
+    on<AuthIsUserLoggedIn>(_isUserLoggedIn);
+  }
+
+  void _isUserLoggedIn(
+    AuthIsUserLoggedIn event,
+    Emitter<AuthState> emit,
+  ) async {
+    final res = await _currentUser(NoParams());
+
+    res.fold((l) => emit(AuthFailure(msg: l.msg)), (r) {
+      print('Success ${r.email}');
+      emit(AuthSuccess(user: r));
+    });
   }
 
   void _onAuthLogIn(AuthLogIn event, Emitter<AuthState> emit) async {
