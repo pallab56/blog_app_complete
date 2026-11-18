@@ -25,6 +25,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
        _currentUser = currentUser,
        _appUserCubit = appUserCubit,
        super(AuthInitial()) {
+
+    ///authloading is emitted when a event is created automatically
+    ///we don't have to write it manualy
+    on<AuthEvent>((_, emit) => emit(AuthLoading()));
     on<AuthSignUp>(_onAuthSignUp);
     on<AuthLogIn>(_onAuthLogIn);
     on<AuthIsUserLoggedIn>(_isUserLoggedIn);
@@ -38,12 +42,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     res.fold((l) => emit(AuthFailure(msg: l.msg)), (r) {
       print('Success ${r.email}');
-      _emitAuthSuccess(r,emit);
+      _emitAuthSuccess(r, emit);
     });
   }
 
   void _onAuthLogIn(AuthLogIn event, Emitter<AuthState> emit) async {
-    emit(AuthLoading());
+    
 
     final res = await _userLogIn(
       UserLogInParams(email: event.email, password: event.password),
@@ -51,13 +55,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     res.fold(
       (failure) => emit(AuthFailure(msg: failure.msg)),
-      (success) =>  _emitAuthSuccess(success,emit),
+      (success) => _emitAuthSuccess(success, emit),
     );
   }
 
   void _onAuthSignUp(AuthSignUp event, Emitter<AuthState> emit) async {
     print("${event.email} ${event.password}");
-    emit(AuthLoading());
+    
     final res = await _userSignUp(
       UserSignUpPrams(
         email: event.email,
@@ -68,7 +72,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     res.fold(
       (failure) => emit(AuthFailure(msg: failure.msg)),
-      (user) => _emitAuthSuccess(user,emit),
+      (user) => _emitAuthSuccess(user, emit),
     );
   }
 
