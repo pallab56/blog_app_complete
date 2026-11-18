@@ -1,7 +1,8 @@
+import 'package:blog_rivaan/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:blog_rivaan/core/route/app_routes.dart';
-import 'package:blog_rivaan/core/route/route_name.dart';
 import 'package:blog_rivaan/core/theme/app_theme.dart';
 import 'package:blog_rivaan/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:blog_rivaan/features/auth/presentation/pages/log_in_page.dart';
 import 'package:blog_rivaan/init_dependencies.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,7 +12,10 @@ void main() async {
   await initDependencies();
   runApp(
     MultiBlocProvider(
-      providers: [BlocProvider(create: (_) => serviceLocator<AuthBloc>())],
+      providers: [
+        BlocProvider(create: (_) => serviceLocator<AppUserCubit>()),
+        BlocProvider(create: (_) => serviceLocator<AuthBloc>()),
+      ],
       child: const MyApp(),
     ),
   );
@@ -38,7 +42,17 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       title: 'Blog_App',
       theme: AppTheme.darkThemeMode,
-      initialRoute: RouteName.login_page,
+      home: BlocSelector<AppUserCubit, AppUserState, bool>(
+        selector: (state) {
+          return state is AppUserLoggeIn;
+        },
+        builder: (context, isloggedIn) {
+          if (isloggedIn) {
+            return Scaffold(body: Center(child: Text('LoggedIn')));
+          }
+          return LogInPage();
+        },
+      ),
       onGenerateRoute: Routes.generateRoute,
     );
   }

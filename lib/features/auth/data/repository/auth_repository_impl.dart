@@ -1,7 +1,7 @@
 import 'package:blog_rivaan/core/error/exceptions.dart';
 import 'package:blog_rivaan/core/error/failures.dart';
 import 'package:blog_rivaan/features/auth/data/datasources/auth_remote_data_source.dart';
-import 'package:blog_rivaan/features/auth/domain/entity/user.dart';
+import 'package:blog_rivaan/core/common/entity/user.dart';
 import 'package:blog_rivaan/features/auth/domain/repository/auth_repository.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;

@@ -1,5 +1,6 @@
+import 'package:blog_rivaan/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:blog_rivaan/core/usecase/usecase.dart';
-import 'package:blog_rivaan/features/auth/domain/entity/user.dart';
+import 'package:blog_rivaan/core/common/entity/user.dart';
 import 'package:blog_rivaan/features/auth/domain/usecases/current_user.dart';
 import 'package:blog_rivaan/features/auth/domain/usecases/user_log_in.dart';
 import 'package:blog_rivaan/features/auth/domain/usecases/user_sign_up.dart';
@@ -13,13 +14,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final UserSignUp _userSignUp;
   final UserLogIn _userLogIn;
   final CurrentUser _currentUser;
+  final AppUserCubit _appUserCubit;
   AuthBloc({
     required UserSignUp userSignUp,
     required UserLogIn userLogIn,
     required CurrentUser currentUser,
+    required AppUserCubit appUserCubit,
   }) : _userSignUp = userSignUp,
        _userLogIn = userLogIn,
        _currentUser = currentUser,
+       _appUserCubit = appUserCubit,
        super(AuthInitial()) {
     on<AuthSignUp>(_onAuthSignUp);
     on<AuthLogIn>(_onAuthLogIn);
@@ -34,7 +38,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     res.fold((l) => emit(AuthFailure(msg: l.msg)), (r) {
       print('Success ${r.email}');
-      emit(AuthSuccess(user: r));
+      _emitAuthSuccess(r,emit);
     });
   }
 
@@ -47,7 +51,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     res.fold(
       (failure) => emit(AuthFailure(msg: failure.msg)),
-      (success) => emit(AuthSuccess(user: success)),
+      (success) =>  _emitAuthSuccess(success,emit),
     );
   }
 
@@ -64,7 +68,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     res.fold(
       (failure) => emit(AuthFailure(msg: failure.msg)),
-      (user) => emit(AuthSuccess(user: user)),
+      (user) => _emitAuthSuccess(user,emit),
     );
+  }
+
+  void _emitAuthSuccess(User user, Emitter<AuthState> emit) {
+    _appUserCubit.updateUser(user);
+    emit(AuthSuccess(user: user));
   }
 }

@@ -1,3 +1,4 @@
+import 'package:blog_rivaan/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:blog_rivaan/core/secrets/app_secrets.dart';
 import 'package:blog_rivaan/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:blog_rivaan/features/auth/data/repository/auth_repository_impl.dart';
@@ -18,27 +19,32 @@ Future<void> initDependencies() async {
   );
 
   serviceLocator.registerLazySingleton(() => supabase.client);
+
+  ///core
+  serviceLocator.registerLazySingleton(() => AppUserCubit());
 }
 
 void _initAuth() {
   serviceLocator
-  
-  // data sources
-  ..registerFactory<AuthRemoteDataSource>(
-    () => AuthRemoteDataSourceImpl(supabaseClient: serviceLocator()),
-  )
-  // repository
-  ..registerFactory<AuthRepository>(
-    () => AuthRepositoryImpl(remoteDataSource: serviceLocator()),
-  ) 
-  //usecases
-  ..registerFactory(() => UserSignUp(serviceLocator()))
-  
-  ..registerFactory(() => UserLogIn(authRepository:serviceLocator()))
-
-  ..registerFactory(() => CurrentUser(serviceLocator()))
-  //bloc
-  ..registerLazySingleton(
-    () => AuthBloc(userSignUp: serviceLocator(),userLogIn: serviceLocator(),currentUser: serviceLocator()),
-  );
+    // data sources
+    ..registerFactory<AuthRemoteDataSource>(
+      () => AuthRemoteDataSourceImpl(supabaseClient: serviceLocator()),
+    )
+    // repository
+    ..registerFactory<AuthRepository>(
+      () => AuthRepositoryImpl(remoteDataSource: serviceLocator()),
+    )
+    //usecases
+    ..registerFactory(() => UserSignUp(serviceLocator()))
+    ..registerFactory(() => UserLogIn(authRepository: serviceLocator()))
+    ..registerFactory(() => CurrentUser(serviceLocator()))
+    //bloc
+    ..registerLazySingleton(
+      () => AuthBloc(
+        userSignUp: serviceLocator(),
+        userLogIn: serviceLocator(),
+        currentUser: serviceLocator(),
+        appUserCubit: serviceLocator(),
+      ),
+    );
 }

@@ -1,5 +1,5 @@
 import 'package:blog_rivaan/core/error/failures.dart';
-import 'package:blog_rivaan/features/auth/domain/entity/user.dart';
+import 'package:blog_rivaan/core/common/entity/user.dart';
 import 'package:fpdart/fpdart.dart';
 
 abstract interface class AuthRepository {
