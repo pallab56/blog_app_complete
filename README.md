@@ -14,6 +14,7 @@ A modern, scalable, and responsive **Blogging Application** built with **Flutter
 ## 📌 Table of Contents
 
 - [Overview](#-overview)
+- [📱 App Screenshots](#-app-screenshots)
 - [✨ Current Progress & Features Implemented](#-current-progress--features-implemented)
 - [🏗️ Architectural Pattern](#️-architectural-pattern)
 - [📂 Project Structure](#-project-structure)
@@ -33,6 +34,16 @@ A modern, scalable, and responsive **Blogging Application** built with **Flutter
 ## 📖 Overview
 
 The goal of this project is to build a full-featured, production-ready blogging platform. Up to this point, the entire **core foundational architecture** and complete **Authentication & User Management feature** have been developed from scratch following industry best practices.
+
+---
+
+## 📱 App Screenshots
+
+| Sign Up Screen | Sign In Screen | Home / Blog Screen |
+| :---: | :---: | :---: |
+| <img src="screenshots/signup.png" width="260" alt="Sign Up Page" /> | <img src="screenshots/login.png" width="260" alt="Login Page" /> | <img src="screenshots/blog.png" width="260" alt="Blog Page" /> |
+
+> 💡 *Add your screenshot image files inside the `screenshots/` folder (`signup.png`, `login.png`, `blog.png`) to display them here.*
 
 ---
 
