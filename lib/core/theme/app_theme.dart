@@ -16,6 +16,10 @@ class AppTheme {
     ),
     appBarTheme: AppBarTheme(
       backgroundColor: AppPallete.backgroundColor,
+    ),
+    chipTheme: ChipThemeData(
+      backgroundColor: AppPallete.backgroundColor,
+      side: BorderSide.none,
     )
   );
 }

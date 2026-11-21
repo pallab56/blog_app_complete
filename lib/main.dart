@@ -3,6 +3,7 @@ import 'package:blog_rivaan/core/route/app_routes.dart';
 import 'package:blog_rivaan/core/theme/app_theme.dart';
 import 'package:blog_rivaan/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:blog_rivaan/features/auth/presentation/pages/log_in_page.dart';
+import 'package:blog_rivaan/features/blog/presentation/pages/blog_pages.dart';
 import 'package:blog_rivaan/init_dependencies.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -48,7 +49,7 @@ class _MyAppState extends State<MyApp> {
         },
         builder: (context, isloggedIn) {
           if (isloggedIn) {
-            return Scaffold(body: Center(child: Text('LoggedIn')));
+            return BlogPage();
           }
           return LogInPage();
         },
