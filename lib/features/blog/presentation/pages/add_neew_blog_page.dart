@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:blog_rivaan/core/theme/app_pallete.dart';
+import 'package:blog_rivaan/core/utils/pick_image.dart';
 import 'package:blog_rivaan/features/blog/presentation/widgets/blog_editor.dart';
 import 'package:dotted_box/dotted_box.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +18,20 @@ class _AddNeewBlogPageState extends State<AddNeewBlogPage> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController contentController = TextEditingController();
   final List<String> selectedTopic = [];
+
+  File? image;
+  void selectedImage() async {
+    final pickedImage = await pickImage();
+    print(pickedImage);
+    if (pickedImage != null) {
+      setState(() {
+        image = pickedImage;
+      });
+    } else {
+      print('path not recognised');
+    }
+  }
+
   @override
   void dispose() {
     titleController.dispose();
@@ -34,41 +51,65 @@ class _AddNeewBlogPageState extends State<AddNeewBlogPage> {
           padding: const EdgeInsets.all(15.0),
           child: Column(
             children: [
-              SizedBox(
-                height: 200,
-                width: double.infinity,
-                child: Stack(
-                  children: [
-                    DottedBox(
-                      height: 200,
-                      width: double.infinity,
-                      borderShape: Shape.rectangle,
-                      borderRadius: 15,
-                      borderThickness: 2,
-                      borderColor: AppPallete.borderColor,
-                      space: 2,
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-
-                      children: [
-                        Center(
-                          child: Icon(Icons.folder_open_outlined, size: 40),
-                        ),
-                        SizedBox(height: 15),
-                        Text(
-                          'Select Your Image',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
+              image != null
+                  ? GestureDetector(
+                      onTap: () {
+                        selectedImage();
+                      },
+                      child: ClipRRect(
+                        borderRadius: BorderRadiusGeometry.circular(25),
+                        child: SizedBox(
+                          height: 200,
+                          child: Image.file(
+                            image!,
+                            height: 150,
+                            width: double.maxFinite,
+                            fit: BoxFit.cover,
                           ),
                         ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+                      ),
+                    )
+                  : GestureDetector(
+                    onTap: selectedImage,
+                    child: SizedBox(
+                        height: 200,
+                        width: double.infinity,
+                        child: Stack(
+                          children: [
+                            DottedBox(
+                              height: 200,
+                              width: double.infinity,
+                              borderShape: Shape.rectangle,
+                              borderRadius: 15,
+                              borderThickness: 2,
+                              borderColor: AppPallete.borderColor,
+                              space: 2,
+                            ),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                                  
+                              children: [
+                                Center(
+                                  child: Icon(
+                                    Icons.folder_open_outlined,
+                                    size: 40,
+                                  ),
+                                ),
+                                SizedBox(height: 15),
+                                Text(
+                                  'Select Your Image',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                  ),
               SizedBox(height: 20),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -89,10 +130,14 @@ class _AddNeewBlogPageState extends State<AddNeewBlogPage> {
                                   print(selectedTopic);
                                 },
                                 child: Chip(
-                                  backgroundColor: selectedTopic.contains(e)?AppPallete.gradient1:null,
-                                  side:selectedTopic.contains(e)?null: BorderSide(
-                                    color: AppPallete.borderColor,
-                                  ),
+                                  backgroundColor: selectedTopic.contains(e)
+                                      ? AppPallete.gradient1
+                                      : null,
+                                  side: selectedTopic.contains(e)
+                                      ? null
+                                      : BorderSide(
+                                          color: AppPallete.borderColor,
+                                        ),
                                   label: Text(e),
                                 ),
                               ),
