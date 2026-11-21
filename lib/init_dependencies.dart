@@ -10,6 +10,7 @@ import 'package:blog_rivaan/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:blog_rivaan/features/blog/data/datasources/blog_remote_data_source.dart';
 import 'package:blog_rivaan/features/blog/data/repository/blog_repository_impl.dart';
 import 'package:blog_rivaan/features/blog/domain/repository/blog_repository.dart';
+import 'package:blog_rivaan/features/blog/domain/usecases/get_all_blogs.dart';
 import 'package:blog_rivaan/features/blog/domain/usecases/upload_blog.dart';
 import 'package:blog_rivaan/features/blog/presentation/bloc/bloc/blog_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -57,20 +58,20 @@ void _initAuth() {
 
 void _initBlog() {
   serviceLocator
-
-  // data sources
+    // data sources
     ..registerFactory<BlogRemoteDataSource>(
       () => BlogRemoteDataSourceImpl(supabaseClient: serviceLocator()),
     )
-
-  //repository
+    //repository
     ..registerFactory<BlogRepository>(
       () => BlogRepositoryImpl(blogRemoteDataSource: serviceLocator()),
     )
-
-  //use cases
+    //use cases
     ..registerFactory(() => UploadBlog(blogRepository: serviceLocator()))
-
-  //bloc
-    ..registerLazySingleton(() => BlogBloc(uploadBLog: serviceLocator()));
+    ..registerFactory(() => GetAllBlogs(blogRepository: serviceLocator()))
+    //bloc
+    ..registerLazySingleton(
+      () =>
+          BlogBloc(uploadBLog: serviceLocator(), getAllBlogs: serviceLocator()),
+    );
 }
