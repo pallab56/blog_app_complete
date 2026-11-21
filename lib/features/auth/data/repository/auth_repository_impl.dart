@@ -1,5 +1,6 @@
 import 'package:blog_rivaan/core/error/exceptions.dart';
 import 'package:blog_rivaan/core/error/failures.dart';
+import 'package:blog_rivaan/core/network/connection_checker.dart';
 import 'package:blog_rivaan/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:blog_rivaan/core/common/entity/user.dart';
 import 'package:blog_rivaan/features/auth/domain/repository/auth_repository.dart';
@@ -8,12 +9,18 @@ import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
+  final InternetConnectionChecker internetConnectionChecker;
 
-  AuthRepositoryImpl({required this.remoteDataSource});
+  AuthRepositoryImpl({
+    required this.remoteDataSource,
+    required this.internetConnectionChecker,
+  });
 
   @override
   Future<Either<Failure, User>> currentUser() async {
     try {
+
+      
       final user = await remoteDataSource.getCurrentUserData();
       if (user == null) {
         return left(Failure(msg: 'User Not Logged In!!!'));
@@ -54,6 +61,9 @@ class AuthRepositoryImpl implements AuthRepository {
 
   Future<Either<Failure, User>> _getUser(Future<User> Function() fn) async {
     try {
+      if (!await (internetConnectionChecker.isConnected)) {
+        return left(Failure(msg: 'No Internet Connection'));
+      }
       final user = await fn();
 
       return right(user);
