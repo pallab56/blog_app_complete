@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:blog_rivaan/core/error/exceptions.dart';
 import 'package:blog_rivaan/core/error/failures.dart';
+import 'package:blog_rivaan/core/network/connection_checker.dart';
+import 'package:blog_rivaan/features/blog/data/datasources/blog_local_data_source.dart';
 import 'package:blog_rivaan/features/blog/data/datasources/blog_remote_data_source.dart';
 import 'package:blog_rivaan/features/blog/data/model/blog_model.dart';
 import 'package:blog_rivaan/features/blog/domain/entities/blog.dart';
@@ -11,8 +13,13 @@ import 'package:uuid/uuid.dart';
 
 class BlogRepositoryImpl implements BlogRepository {
   final BlogRemoteDataSource blogRemoteDataSource;
-
-  BlogRepositoryImpl({required this.blogRemoteDataSource});
+  final BlogLocalDataSource blogLocalDataSource;
+  final InternetConnectionChecker internetConnectionChecker;
+  BlogRepositoryImpl({
+    required this.blogRemoteDataSource,
+    required this.blogLocalDataSource,
+    required this.internetConnectionChecker,
+  });
   @override
   Future<Either<Failure, Blog>> uploadBlog({
     required File image,
@@ -22,6 +29,9 @@ class BlogRepositoryImpl implements BlogRepository {
     required List<String> topics,
   }) async {
     try {
+      if (!await (internetConnectionChecker.isConnected)) {
+        return left(Failure(msg: 'No Internet Connection!!!'));
+      }
       BlogModel blogModel = BlogModel(
         id: const Uuid().v1(),
         poster_id: posterId,
@@ -50,10 +60,24 @@ class BlogRepositoryImpl implements BlogRepository {
   @override
   Future<Either<Failure, List<Blog>>> getAllBlogs() async {
     try {
-      final blogs = await blogRemoteDataSource.getAllBlogs();
+    final isConnected = await internetConnectionChecker.isConnected;
+    print('INTERNET CONNECTED: $isConnected');
+
+    if (!isConnected) {
+      final blogs = blogLocalDataSource.loadBlogs();
+      print('LOCAL BLOGS LOADED: ${blogs.length}');
       return right(blogs);
-    } on ServerExceptions catch (e) {
-      return left(Failure(msg: e.msg));
     }
+
+    final blogs = await blogRemoteDataSource.getAllBlogs();
+    print('REMOTE BLOGS FETCHED: ${blogs.length}');
+    blogLocalDataSource.uploadLocalBlogs(blogs: blogs);
+    return right(blogs);
+  } on ServerExceptions catch (e) {
+    return left(Failure(msg: e.msg));
+  } catch (e) {
+    print('UNEXPECTED ERROR: $e');
+    return left(Failure(msg: e.toString()));
+  }
   }
 }

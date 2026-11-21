@@ -3,6 +3,7 @@ import 'package:blog_rivaan/core/error/failures.dart';
 import 'package:blog_rivaan/core/network/connection_checker.dart';
 import 'package:blog_rivaan/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:blog_rivaan/core/common/entity/user.dart';
+import 'package:blog_rivaan/features/auth/data/model/user_model.dart';
 import 'package:blog_rivaan/features/auth/domain/repository/auth_repository.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
@@ -19,8 +20,15 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, User>> currentUser() async {
     try {
-
-      
+      if (!await (internetConnectionChecker.isConnected)) {
+        final session = await remoteDataSource.userCurrentSession;
+        if (session == null) {
+          return left(Failure(msg: 'User Not Logged In!!!'));
+        }
+        return right(
+          UserModel(id: session.user.id, name: '', email: session.user.email ?? ''),
+        );
+      }
       final user = await remoteDataSource.getCurrentUserData();
       if (user == null) {
         return left(Failure(msg: 'User Not Logged In!!!'));
