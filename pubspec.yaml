@@ -39,6 +39,7 @@ dependencies:
   flutter_bloc: ^9.1.1
   get_it: ^9.3.0
   dotted_box: ^0.0.3
+  image_picker: ^1.2.4
 
 dev_dependencies:
   flutter_test:
