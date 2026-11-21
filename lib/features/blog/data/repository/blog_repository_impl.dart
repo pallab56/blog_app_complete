@@ -24,12 +24,12 @@ class BlogRepositoryImpl implements BlogRepository {
     try {
       BlogModel blogModel = BlogModel(
         id: const Uuid().v1(),
-        posterId: posterId,
+        poster_id: posterId,
         title: title,
         content: content,
-        imageUrl: '',
+        image_url: '',
         topics: topics,
-        updatedAt: DateTime.now(),
+        updated_at: DateTime.now(),
       );
 
       final imageUrl = await blogRemoteDataSource.uploadBlogImage(
@@ -37,7 +37,7 @@ class BlogRepositoryImpl implements BlogRepository {
         blog: blogModel,
       );
 
-      blogModel = blogModel.copyWith(imageUrl: imageUrl);
+      blogModel = blogModel.copyWith(image_url: imageUrl);
 
       final uploadedBlog = await blogRemoteDataSource.uploadBlog(blogModel);
 

@@ -3,6 +3,7 @@ import 'package:blog_rivaan/core/route/app_routes.dart';
 import 'package:blog_rivaan/core/theme/app_theme.dart';
 import 'package:blog_rivaan/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:blog_rivaan/features/auth/presentation/pages/log_in_page.dart';
+import 'package:blog_rivaan/features/blog/presentation/bloc/bloc/blog_bloc.dart';
 import 'package:blog_rivaan/features/blog/presentation/pages/blog_pages.dart';
 import 'package:blog_rivaan/init_dependencies.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,7 @@ void main() async {
       providers: [
         BlocProvider(create: (_) => serviceLocator<AppUserCubit>()),
         BlocProvider(create: (_) => serviceLocator<AuthBloc>()),
+        BlocProvider(create: (_) => serviceLocator<BlogBloc>()),
       ],
       child: const MyApp(),
     ),

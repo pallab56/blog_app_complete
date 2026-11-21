@@ -13,6 +13,7 @@ class AppTheme {
       contentPadding: EdgeInsets.all(15),
       enabledBorder: border(),
       focusedBorder: border(AppPallete.gradient2),
+      errorBorder: border(AppPallete.errorColor),
     ),
     appBarTheme: AppBarTheme(
       backgroundColor: AppPallete.backgroundColor,
