@@ -51,6 +51,7 @@ class _AddNeewBlogPageState extends State<AddNeewBlogPage> {
           padding: const EdgeInsets.all(15.0),
           child: Column(
             children: [
+              // after that supabase blog sql added and create blog table
               image != null
                   ? GestureDetector(
                       onTap: () {
