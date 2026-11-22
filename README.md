@@ -46,11 +46,31 @@ The goal of this application is to deliver a seamless, publication-quality readi
 
 ## 📱 App Screenshots
 
-| Sign Up Screen | Sign In Screen | Home / Blog Feed |
-| :---: | :---: | :---: |
-| <img src="screenshots/signup.png" width="260" alt="Sign Up Page" /> | <img src="screenshots/login.png" width="260" alt="Login Page" /> | <img src="screenshots/blog.png" width="260" alt="Blog Page" /> |
+<details open>
+<summary><b>📸 Click to toggle Screenshots Gallery</b></summary>
+<br/>
 
-> 💡 *Add your screenshot files inside the `screenshots/` directory (`signup.png`, `login.png`, `blog.png`) to display them above.*
+### 🔐 Authentication & Onboarding
+| Sign In Screen | Sign Up Screen |
+| :---: | :---: |
+| <img src="screenshots/sign_in.png" width="290" alt="Sign In Screen" /> | <img src="screenshots/sign_up.png" width="290" alt="Sign Up Screen" /> |
+
+### 📰 Story Feed & Reading Experience
+| Blog Feed (Rotating Palette) | Editorial Story Viewer |
+| :---: | :---: |
+| <img src="screenshots/blog_page.png" width="290" alt="Blog Feed" /> | <img src="screenshots/blog_viewer.png" width="290" alt="Blog Viewer" /> |
+
+### ✍️ Story Creation & Publishing
+| Create Story (Form) | Story with Cover & Topics |
+| :---: | :---: |
+| <img src="screenshots/add_new_blog_page.png" width="290" alt="Create Story Page" /> | <img src="screenshots/adding_new_blog.png" width="290" alt="Adding New Blog" /> |
+
+### 👤 Profile & Account Management
+| User Profile Modal | Log Out Confirmation |
+| :---: | :---: |
+| <img src="screenshots/user_profile.png" width="290" alt="User Profile" /> | <img src="screenshots/log_out_view.png" width="290" alt="Log Out View" /> |
+
+</details>
 
 ---
 
