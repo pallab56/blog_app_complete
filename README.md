@@ -1,13 +1,16 @@
-# 📝 Blog App (Flutter & Supabase)
+# 📝 Blog App (Flutter, Supabase & Clean Architecture)
 
 [![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
 [![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
-[![BLoC](https://img.shields.io/badge/State_Management-BLoC-blue?style=for-the-badge)](https://bloclibrary.dev)
+[![Hive](https://img.shields.io/badge/Hive_Cache-F9A825?style=for-the-badge&logo=hive&logoColor=white)](https://pub.dev/packages/hive)
+[![BLoC](https://img.shields.io/badge/State_Management-BLoC_&_Cubit-blue?style=for-the-badge)](https://bloclibrary.dev)
 [![Architecture](https://img.shields.io/badge/Architecture-Clean_Architecture-brightgreen?style=for-the-badge)](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
 [![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
 
-A modern, scalable, and responsive **Blogging Application** built with **Flutter** and powered by **Supabase**. This project strictly implements **Uncle Bob's Clean Architecture**, the **BLoC (Business Logic Component)** pattern for state management, functional error handling using **fpdart**, and dependency injection via **GetIt**.
+A modern, offline-first **Blogging Application** built with **Flutter**, powered by **Supabase** (PostgreSQL + Auth + Storage) and cached locally with **Hive**. 
+
+This project is built from the ground up following **Uncle Bob's Clean Architecture**, the **BLoC & Cubit** state management pattern, functional programming with **fpdart**, and dependency injection via **GetIt**.
 
 ---
 
@@ -15,171 +18,219 @@ A modern, scalable, and responsive **Blogging Application** built with **Flutter
 
 - [Overview](#-overview)
 - [📱 App Screenshots](#-app-screenshots)
-- [✨ Current Progress & Features Implemented](#-current-progress--features-implemented)
+- [✨ Key Features Implemented](#-key-features-implemented)
+  - [1. Authentication & Profile Management](#1-authentication--profile-management)
+  - [2. Blog & Editorial Experience](#2-blog--editorial-experience)
+  - [3. Network Awareness & Offline-First Caching](#3-network-awareness--offline-first-caching)
+  - [4. Architectural Foundations](#4-architectural-foundations)
+- [🧠 What You Can Learn From This Project](#-what-you-can-learn-from-this-project)
 - [🏗️ Architectural Pattern](#️-architectural-pattern)
-- [📂 Project Structure](#-project-structure)
-- [🛠️ Tech Stack & Libraries](#️-tech-stack--libraries)
+- [📂 Project Directory Structure](#-project-directory-structure)
+- [🛠️ Tech Stack & Dependencies](#️-tech-stack--dependencies)
 - [🚀 Getting Started](#-getting-started)
   - [Prerequisites](#prerequisites)
-  - [Supabase Setup](#supabase-setup)
-  - [Configuration](#configuration)
-  - [Run the App](#run-the-app)
-- [🧭 Application Flow](#-application-flow)
-- [🗺️ Roadmap](#️-roadmap)
-- [🤝 Contributing](#-contributing)
+  - [Supabase Setup & RLS Policies](#supabase-setup--rls-policies)
+  - [Installation & Run](#installation--run)
 - [📄 License](#-license)
 
 ---
 
 ## 📖 Overview
 
-The goal of this project is to build a full-featured, production-ready blogging platform. Up to this point, the entire **core foundational architecture** and complete **Authentication & User Management feature** have been developed from scratch following industry best practices.
+The goal of this application is to deliver a seamless, publication-quality reading and writing experience (inspired by platforms like *Medium* and *Substack*), while serving as a reference implementation for **scalable mobile architecture**:
+- **Offline-First**: Users can continue reading their cached stories even with zero internet connectivity.
+- **Strict Clean Architecture**: High testability, zero UI logic in data layers, and pure domain business rules.
+- **Fail-Safe Security**: Database and storage buckets guarded by PostgreSQL **Row Level Security (RLS)**.
 
 ---
 
 ## 📱 App Screenshots
 
-| Sign Up Screen | Sign In Screen | Home / Blog Screen |
+| Sign Up Screen | Sign In Screen | Home / Blog Feed |
 | :---: | :---: | :---: |
 | <img src="screenshots/signup.png" width="260" alt="Sign Up Page" /> | <img src="screenshots/login.png" width="260" alt="Login Page" /> | <img src="screenshots/blog.png" width="260" alt="Blog Page" /> |
 
-> 💡 *Add your screenshot image files inside the `screenshots/` folder (`signup.png`, `login.png`, `blog.png`) to display them here.*
+> 💡 *Add your screenshot files inside the `screenshots/` directory (`signup.png`, `login.png`, `blog.png`) to display them above.*
 
 ---
 
-## ✨ Current Progress & Features Implemented
+## ✨ Key Features Implemented
 
-Here is what has been built and tested up to this point:
+### 1. Authentication & Profile Management
+- **Editorial Sign In & Sign Up Screens**:
+  - Branded editorial identity with custom iconography and typography.
+  - Interactive password visibility toggle (`Icons.visibility` / `Icons.visibility_off`).
+  - Strict form validation (email regex and password length constraints).
+  - Responsive layout wrapped in bouncing scroll views to prevent keyboard overflows.
+- **Persistent Authentication**:
+  - Automatically checks for existing sessions on app launch (`AuthIsUserLoggedIn`).
+  - Broadcasts active session to an app-wide `AppUserCubit` to synchronize authentication across all screens.
+- **User Profile in AppBar**:
+  - Shows user photo if uploaded, or generates uppercase initials with a gradient ring.
+  - Tapping the avatar opens a modern **Account Profile Modal**.
+- **Edit & Update Display Name**:
+  - Inline name-editing dialog allowing users to set or update their public author name.
+  - Syncs with both Supabase `profiles` table and `auth.users` metadata in real time.
+- **Profile Picture Upload**:
+  - Integrates `image_picker` to upload custom user avatars directly to Supabase Storage.
+  - Uses unique timestamp identifiers to prevent caching and storage upload collisions.
+- **Safe Log Out**:
+  - Confirmation dialog preventing accidental logouts.
+  - Signs out from Supabase, resets `AppUserCubit`, and clears the navigation route stack.
 
-### 🔐 1. Authentication Feature (Complete)
-- **User Registration (Sign Up)**:
-  - Form validation with customized email, password, and full name fields.
-  - User creation through Supabase Auth, storing metadata (`name`).
-  - Interactive gradient action buttons with automated loading state indicator (`Loader`).
-  - Graceful error messaging with customized SnackBars.
-- **User Authentication (Sign In / Login)**:
-  - Secure login using email and password against Supabase Auth.
-  - Seamless input handling with automatic keyboard management.
-  - Routing to the main feed / blog landing view upon successful credentials validation.
-- **Persistent Session & Current User Resolution**:
-  - Automatically checks for existing active sessions on app launch (`AuthIsUserLoggedIn`).
-  - Fetches user profile data from the PostgreSQL `profiles` table in Supabase.
-  - Decoupled session broadcasting through `AppUserCubit` to synchronize authentication state globally.
-  - Immediate auto-navigation: logged-in users bypass the login screen directly to the main screen.
+---
 
-### 🏛️ 2. Clean Architecture & Code Organization
-- Completely decoupled into **Domain**, **Data**, and **Presentation** layers:
-  - **Domain Layer**: Pure Dart, containing business logic entities, use cases (`UserSignUp`, `UserLogIn`, `CurrentUser`), and abstract repository interfaces (`AuthRepository`).
-  - **Data Layer**: Supabase remote data source implementation (`AuthRemoteDataSourceImpl`), data models with JSON serialization (`UserModel`), and repository implementation (`AuthRepositoryImpl`).
-  - **Presentation Layer**: UI pages (`SignUpPage`, `LogInPage`, `BlogPage`), reusable widgets (`AuthField`, `AuthGradientButton`), and reactive BLoC state management (`AuthBloc`).
+### 2. Blog & Editorial Experience
+- **Interactive Story Feed**:
+  - Pull-to-refresh (`RefreshIndicator`) for live blog updates.
+  - Rotating harmonic card palette (`gradient1` through `gradient4`) for visual rhythm.
+  - Elegant empty state with an illustrated badge and a *"Write First Story"* action.
+- **Polished Blog Cards**:
+  - Elevated cards with smooth `22px` rounded corners and colored soft drop shadows.
+  - Translucent topic pill badges with frosted glass borders.
+  - Author info avatar, calculated reading time (`calculatedReadingTime(content)`), and tap ripple animation.
+- **Editorial Story Viewer**:
+  - Medium/Substack-style reading layout with clean typography (`17px`, line-height `1.85`).
+  - Author metadata bar with formatted date (`dateFormatByDMMMYYY`) and reading time badge.
+  - Full-width hero image with progress indicator and broken-image fallback.
+  - Top action bar featuring a reactive **Bookmark** toggle and **Share** button.
+- **Create New Story Screen**:
+  - Cover image picker with dotted upload box and *"Change Cover"* preview overlay.
+  - Animated category selector (`Business`, `Technology`, `Programming`, `Entertainment`) with checkmark feedback.
+  - Actionable validation alerts if cover image, topic, or content is missing.
+  - Direct upload of blog image to Supabase Storage and database insertion into PostgreSQL `blogs` table.
 
-### 🛡️ 3. Robust Functional Error Handling
-- Leverages **`fpdart`** to return `Either<Failure, Success>` across repositories and use cases.
-- Replaces runtime exception crashes with typed, predictable error pipelines.
-- Standardized `Failure` and `ServerExceptions` models across the application.
+---
 
-### 💉 4. Dependency Injection & Inversion of Control
-- Centralized Service Locator using **`get_it`** in `init_dependencies.dart`.
-- Clean lifecycle management:
-  - Singletons for clients (`SupabaseClient`) and global state cubits (`AppUserCubit`).
-  - Factories for use cases, repositories, and data sources for memory efficiency.
+### 3. Network Awareness & Offline-First Caching
+- **Reactive Connectivity Checking**:
+  - Abstracted `InternetConnectionChecker` powered by `internet_connection_checker_plus`.
+  - Checks network state before executing network requests.
+- **Local Caching with Hive**:
+  - **Online Mode**: When connected, stories are fetched from Supabase Remote Data Source and automatically written to a local **Hive Box** (`blogsBox`).
+  - **Offline Mode**: If internet is unavailable, `BlogRepositoryImpl` seamlessly intercepts the request and loads all previously cached stories from **Hive Local Data Source** with zero crashes.
+  - **Fail-Safe Offline Auth**: When internet is offline, `AuthRepositoryImpl` resolves the user from the local Supabase session cache.
 
-### 🎨 5. Modern UI & Theming
-- Sleek **Dark Theme** system with a unified color palette (`AppPallete`).
-- Reusable custom input decoration styles with focus-state gradient outlines.
-- Eye-catching radial/linear gradient button component (`AuthGradientButton`).
-- Centralized named route management (`AppRoutes` and `RouteName`).
+---
+
+### 4. Architectural Foundations
+- **Uncle Bob's Clean Architecture**:
+  - **Domain Layer**: Independent Dart entities (`User`, `Blog`), use cases (`UserSignUp`, `UserLogIn`, `UserLogOut`, `CurrentUser`, `UploadProfileImage`, `UpdateUserName`, `UploadBlog`, `GetAllBlogs`), and abstract repository interfaces.
+  - **Data Layer**: Concrete repository implementations, remote data sources (Supabase client), local data sources (Hive), and serializable models (`UserModel`, `BlogModel`).
+  - **Presentation Layer**: UI pages, reusable widgets, and state management via `AuthBloc`, `BlogBloc`, and `AppUserCubit`.
+  - **Core Layer**: Shared theme (`AppPallete`, `AppTheme`), errors (`Failure`, `ServerExceptions`), routing (`AppRoutes`), and utilities.
+- **Functional Error Handling with `fpdart`**:
+  - Repositories return `Either<Failure, T>` instead of throwing untyped runtime exceptions.
+  - Monadic folds (`res.fold(left, right)`) ensure UI states handle errors predictably.
+- **Dependency Injection with `GetIt`**:
+  - Singletons for clients (`SupabaseClient`, `Hive Box`) and global cubits (`AppUserCubit`).
+  - Factories for use cases and repositories to optimize memory lifecycle.
+
+---
+
+## 🧠 What You Can Learn From This Project
+
+This repository serves as a practical, production-level guide for:
+1. **Clean Architecture in Flutter**: How to decouple UI from data sources and write testable, modular code.
+2. **BLoC & Cubit Coordination**: How to use a global `Cubit` (for cross-app auth session state) alongside feature-specific `BLoCs` (for event-driven forms and API calls).
+3. **Offline-First Engineering with Hive**: Implementing a local cache fallback strategy that seamlessly serves offline content.
+4. **Functional Programming with `fpdart`**: Replacing try-catch blocks with `Either<Failure, Success>` pipelines.
+5. **Supabase Full-Stack Integration**: Handling PostgreSQL database queries, Auth metadata, and Storage bucket file uploads.
+6. **PostgreSQL Row Level Security (RLS)**: Enforcing database permissions and storage upload security policies.
+7. **Production UI Design**: Creating responsive, dark-themed editorial layouts with custom gradients, badges, and animations.
 
 ---
 
 ## 🏗️ Architectural Pattern
 
-The application enforces **Clean Architecture** to ensure testability, maintainability, and loose coupling:
-
 ```
-                      ┌────────────────────────────────┐
-                      │       Presentation Layer       │
-                      │  (Pages, Widgets, BLoC, Cubit) │
-                      └──────────────┬─────────────────┘
-                                     │ depends on
-                                     ▼
-                      ┌────────────────────────────────┐
-                      │          Domain Layer          │
-                      │   (UseCases, Entities, Repos)  │
-                      └──────────────▲─────────────────┘
-                                     │ implemented by
-                                     │
-                      ┌──────────────┴─────────────────┐
-                      │           Data Layer           │
-                      │ (DataSources, Models, RepoImpl)│
-                      └────────────────────────────────┘
-                                     ▲
-                                     │
-                             Supabase Client / API
+┌────────────────────────────────────────────────────────┐
+│                   Presentation Layer                   │
+│   (Pages, Widgets, AuthBloc, BlogBloc, AppUserCubit)   │
+└───────────────────────────┬────────────────────────────┘
+                            │ Calls UseCases
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│                      Domain Layer                      │
+│   (Entities: User, Blog | UseCases | Repo Contracts)   │
+└───────────────────────────▲────────────────────────────┘
+                            │ Implemented By
+                            │
+┌───────────────────────────┴────────────────────────────┐
+│                       Data Layer                       │
+│  (AuthRepoImpl, BlogRepoImpl, Models, Local & Remote)  │
+└───────────────┬────────────────────────┬───────────────┘
+                │                        │
+       Online (Remote)          Offline (Fallback)
+                ▼                        ▼
+        Supabase BaaS                Hive Box
+   (Auth, Postgres, Storage)     (Local NoSQL Cache)
 ```
-
-- **Entities & UseCases** have zero dependencies on Flutter or third-party SDKs.
-- **Data Layer** handles external network requests and translates raw responses into Domain Entities.
-- **Presentation Layer** listens to BLoC states and renders UI accordingly.
 
 ---
 
-## 📂 Project Structure
+## 📂 Project Directory Structure
 
 ```
 lib/
 ├── core/
 │   ├── common/
-│   │   ├── cubits/
-│   │   │   └── app_user/          # Global AppUserCubit & AppUserState
-│   │   ├── entity/                # Shared domain entities (User)
-│   │   └── widgets/               # Reusable UI widgets (Loader)
-│   ├── error/
-│   │   ├── exceptions.dart        # Custom server/cache exceptions
-│   │   └── failures.dart          # Failure classes for Either returns
-│   ├── route/
-│   │   ├── app_routes.dart        # Route generator (onGenerateRoute)
-│   │   └── route_name.dart        # Route name constants
-│   ├── secrets/
-│   │   └── app_secrets.dart       # Supabase URL and anon/public key
-│   ├── theme/
-│   │   ├── app_pallete.dart       # Centralized color definitions
-│   │   └── app_theme.dart         # ThemeData configurations
-│   ├── usecase/
-│   │   └── usecase.dart           # Base UseCase<SuccessType, Params> contract
-│   └── utils/
-│       └── show_snackbar.dart     # SnackBar helper utility
+│   │   ├── cubits/app_user/       # Global AppUserCubit & session state
+│   │   ├── entity/                # Core entities (User)
+│   │   └── widgets/               # Shared widgets (Loader)
+│   ├── constants/                 # App-wide constants (Topics)
+│   ├── error/                     # Failure and Exception classes
+│   ├── network/                   # InternetConnectionChecker contract & impl
+│   ├── route/                     # Centralized Route generator (AppRoutes)
+│   ├── secrets/                   # Supabase credentials (AppSecrets)
+│   ├── theme/                     # AppTheme & color palette (AppPallete)
+│   ├── usecase/                   # Base UseCase<SuccessType, Params>
+│   └── utils/                     # Formatters, reading time & image pickers
 ├── features/
 │   ├── auth/
 │   │   ├── data/
-│   │   │   ├── datasources/       # AuthRemoteDataSource (Supabase auth calls)
-│   │   │   ├── model/             # UserModel with JSON parsing & copyWith
-│   │   │   └── repository/        # AuthRepositoryImpl
+│   │   │   ├── datasources/       # AuthRemoteDataSource (Supabase Auth/Profiles)
+│   │   │   ├── model/             # UserModel with JSON & copyWith
+│   │   │   └── repository/        # AuthRepositoryImpl (Connection-aware)
 │   │   ├── domain/
 │   │   │   ├── repository/        # AuthRepository interface
-│   │   │   └── usecases/          # UserSignUp, UserLogIn, CurrentUser
+│   │   │   └── usecases/          # SignUp, LogIn, LogOut, CurrentUser, Profile updates
 │   │   └── presentation/
 │   │       ├── bloc/              # AuthBloc, AuthEvent, AuthState
-│   │       ├── pages/             # SignUpPage, LogInPage
+│   │       ├── pages/             # LogInPage, SignUpPage
 │   │       └── widgets/           # AuthField, AuthGradientButton
 │   └── blog/
+│       ├── data/
+│       │   ├── datasources/       # BlogRemoteDataSource & BlogLocalDataSource (Hive)
+│       │   ├── model/             # BlogModel (JSON converters)
+│       │   └── repository/        # BlogRepositoryImpl (Offline-first caching)
+│       ├── domain/
+│       │   ├── entities/          # Blog entity
+│       │   ├── repository/        # BlogRepository interface
+│       │   └── usecases/          # UploadBlog, GetAllBlogs
 │       └── presentation/
-│           └── pages/             # BlogPage (Initial dashboard view)
-├── init_dependencies.dart         # GetIt dependency injection setup
+│           ├── bloc/              # BlogBloc, BlogEvent, BlogState
+│           ├── pages/             # BlogPage, BlogViewerPage, AddNeewBlogPage
+│           └── widgets/           # BlogCard, BlogEditor
+├── init_dependencies.dart         # GetIt Service Locator setup
 └── main.dart                      # App entry point, MultiBlocProvider & Auth check
 ```
 
 ---
 
-## 🛠️ Tech Stack & Libraries
+## 🛠️ Tech Stack & Dependencies
 
 | Package | Version | Purpose |
 |---|---|---|
-| **[flutter_bloc](https://pub.dev/packages/flutter_bloc)** | `^9.1.1` | Predictable state management following BLoC pattern |
-| **[supabase_flutter](https://pub.dev/packages/supabase_flutter)** | `^2.18.3` | Backend integration (Authentication, Database, Realtime) |
-| **[fpdart](https://pub.dev/packages/fpdart)** | `^1.2.0` | Functional programming utilities (`Either`, `Option`) |
-| **[get_it](https://pub.dev/packages/get_it)** | `^9.3.0` | Inversion of Control (IoC) / Service Locator for DI |
-| **[cupertino_icons](https://pub.dev/packages/cupertino_icons)** | `^1.0.8` | iOS style iconography |
+| **[flutter_bloc](https://pub.dev/packages/flutter_bloc)** | `^9.1.1` | Predictable state management with BLoC and Cubit |
+| **[supabase_flutter](https://pub.dev/packages/supabase_flutter)** | `^2.18.3` | Backend as a Service (Auth, PostgreSQL DB, Storage) |
+| **[hive](https://pub.dev/packages/hive)** | `^2.2.3` | Lightweight, lightning-fast NoSQL database for offline caching |
+| **[fpdart](https://pub.dev/packages/fpdart)** | `^1.2.0` | Functional programming utilities (`Either`, `fold`) |
+| **[get_it](https://pub.dev/packages/get_it)** | `^9.3.0` | Dependency injection / Service Locator pattern |
+| **[internet_connection_checker_plus](https://pub.dev/packages/internet_connection_checker_plus)** | `^2.5.2` | Network connectivity detection |
+| **[image_picker](https://pub.dev/packages/image_picker)** | `^1.1.2` | Gallery image picker for blog covers and avatars |
+| **[uuid](https://pub.dev/packages/uuid)** | `^4.5.1` | Unique ID generation for blog posts |
+| **[intl](https://pub.dev/packages/intl)** | `^0.20.2` | Date formatting utilities |
 
 ---
 
@@ -187,143 +238,98 @@ lib/
 
 ### Prerequisites
 
-Ensure you have the following installed on your machine:
+Ensure you have installed:
 - [Flutter SDK](https://docs.flutter.dev/get-started/install) (`>= 3.13.7`)
 - [Dart SDK](https://dart.dev/get-dart)
 - An active [Supabase](https://supabase.com/) account and project
 
-### Supabase Setup
+### Supabase Setup & RLS Policies
 
-1. Create a new project in your **Supabase Dashboard**.
-2. Run the following SQL query in the **Supabase SQL Editor** to create the `profiles` table:
+Run this SQL script in your **Supabase Dashboard ➔ SQL Editor** to create the tables, triggers, and Row Level Security (RLS) policies:
 
 ```sql
--- Create a table for public user profiles
-create table profiles (
+-- 1. Create profiles table
+create table public.profiles (
   id uuid references auth.users not null primary key,
-  updated_at timestamp with time zone,
+  updated_at timestamp with time zone default now(),
   name text,
-  email text
+  email text,
+  profile_image text
 );
 
--- Enable Row Level Security (RLS)
-alter table profiles enable row level security;
+alter table public.profiles enable row level security;
 
--- Create policies for profiles
-create policy "Public profiles are viewable by everyone." on profiles
+create policy "Profiles viewable by everyone" on public.profiles
   for select using (true);
 
-create policy "Users can insert their own profile." on profiles
-  for insert with check (auth.uid() = id);
+create policy "Users can insert their own profile" on public.profiles
+  for insert to authenticated with check (auth.uid() = id);
 
-create policy "Users can update their own profile." on profiles
-  for update using (auth.uid() = id);
+create policy "Users can update their own profile" on public.profiles
+  for update to authenticated using (auth.uid() = id) with check (auth.uid() = id);
 
--- Automatically create a profile entry when a new user signs up
-create or replace function public.handle_new_user()
-returns trigger as $$
-begin
-  insert into public.profiles (id, name, email)
-  values (new.id, new.raw_user_meta_data->>'name', new.email);
-  return new;
-end;
-$$ language plpgsql security definer;
+-- 2. Create blogs table
+create table public.blogs (
+  id uuid not null primary key,
+  updated_at timestamp with time zone default now(),
+  poster_id uuid references public.profiles(id) not null,
+  title text not null,
+  content text not null,
+  image_url text not null,
+  topics text[] not null
+);
 
-create trigger on_auth_user_created
-  after insert on auth.users
-  for each row execute procedure public.handle_new_user();
+alter table public.blogs enable row level security;
+
+create policy "Anyone can view blogs" on public.blogs
+  for select using (true);
+
+create policy "Authenticated users can insert blogs" on public.blogs
+  for insert to authenticated with check (auth.uid() = poster_id);
+
+create policy "Users can update their own blogs" on public.blogs
+  for update to authenticated using (auth.uid() = poster_id);
+
+create policy "Users can delete their own blogs" on public.blogs
+  for delete to authenticated using (auth.uid() = poster_id);
+
+-- 3. Storage policies for "blog_images" bucket
+-- (Make sure you create a public bucket named "blog_images" in Supabase Storage)
+create policy "Authenticated users can upload images" on storage.objects
+  for insert to authenticated with check (bucket_id = 'blog_images');
+
+create policy "Authenticated users can update images" on storage.objects
+  for update to authenticated using (bucket_id = 'blog_images');
+
+create policy "Anyone can view images" on storage.objects
+  for select using (bucket_id = 'blog_images');
 ```
 
-### Configuration
+### Installation & Run
 
-1. Clone the repository:
+1. **Clone the repository:**
    ```bash
    git clone https://github.com/pallab56/blog_app_complete.git
    cd blog_app_complete
    ```
 
-2. Install dependencies:
+2. **Install Flutter packages:**
    ```bash
    flutter pub get
    ```
 
-3. Configure your API keys in `lib/core/secrets/app_secrets.dart`:
+3. **Configure your Supabase keys in `lib/core/secrets/app_secrets.dart`:**
    ```dart
    class AppSecrets {
      static const supabaseUrl = 'YOUR_SUPABASE_PROJECT_URL';
      static const supabasePubKey = 'YOUR_SUPABASE_ANON_PUBLIC_KEY';
    }
    ```
-   > ⚠️ **Note**: Never expose service role keys in client-side code. Only use the public `anon` key.
 
-### Run the App
-
-Start the development server on your connected emulator or device:
-```bash
-flutter run
-```
-
----
-
-## 🧭 Application Flow
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor User
-    participant App as Flutter App (main.dart)
-    participant Bloc as AuthBloc
-    participant Cubit as AppUserCubit
-    participant Supabase as Supabase Client
-
-    App->>Bloc: AuthIsUserLoggedIn
-    Bloc->>Supabase: Check active session & query profiles table
-    alt User is Logged In
-        Supabase-->>Bloc: Returns UserModel
-        Bloc->>Cubit: updateUser(user)
-        Cubit-->>App: State: AppUserLoggedIn
-        App->>User: Displays Blog Dashboard
-    else No Session / Logged Out
-        Supabase-->>Bloc: Returns null
-        Bloc->>Cubit: updateUser(null)
-        Cubit-->>App: State: AppUserInitial
-        App->>User: Displays LogInPage
-    end
-```
-
----
-
-## 🗺️ Roadmap
-
-- [x] **Project initialization** & Clean Architecture layer scaffolding
-- [x] **Theming & design system** (Dark mode, custom borders, gradient buttons)
-- [x] **Dependency injection** setup using GetIt
-- [x] **Supabase integration** for Authentication (Sign Up & Log In)
-- [x] **Session persistence** & auto-login check via `AppUserCubit`
-- [ ] **Blog Data Layer**:
-  - Blog post model and JSON converters
-  - Remote data source for creating and fetching blogs
-  - Supabase Storage bucket integration for blog header images
-- [ ] **Blog Domain Layer**:
-  - Repository contracts & UseCases (`UploadBlog`, `GetAllBlogs`)
-- [ ] **Blog Presentation Layer**:
-  - Feed view with blog cards and reading time calculations
-  - Add new blog screen with image picker and category tags
-  - Blog details view with rich content formatting
-- [ ] **Offline-first caching** (Local storage with Hive or SQLite)
-- [ ] **User Profile & Logout** functionality
-
----
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/pallab56/blog_app_complete/issues).
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+4. **Run the application:**
+   ```bash
+   flutter run
+   ```
 
 ---
 
@@ -334,5 +340,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 <p align="center">
-  Built with ❤️ using <b>Flutter</b> and <b>Supabase</b>
+  Built with ❤️ using <b>Flutter</b>, <b>Supabase</b>, and <b>Hive</b>
 </p>
