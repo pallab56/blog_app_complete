@@ -1,38 +1,76 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:flutter/material.dart';
-
 import 'package:blog_rivaan/core/theme/app_pallete.dart';
+import 'package:flutter/material.dart';
 
 class AuthGradientButton extends StatelessWidget {
   final String buttonText;
   final VoidCallback onpressed;
+  final bool isLoading;
+
   const AuthGradientButton({
-    Key? key,
+    super.key,
     required this.buttonText,
     required this.onpressed,
-  }) : super(key: key);
+    this.isLoading = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: double.infinity,
+      height: 55,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [AppPallete.gradient1, AppPallete.gradient2],
           begin: Alignment.bottomLeft,
           end: Alignment.topRight,
         ),
-
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppPallete.gradient2.withValues(alpha: 0.35),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: ElevatedButton(
-        onPressed: onpressed,
+        onPressed: isLoading ? null : onpressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppPallete.transparentColor,
           shadowColor: AppPallete.transparentColor,
-          fixedSize: Size(395, 55),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
-
-        child: Text(buttonText, style: Theme.of(context).textTheme.titleMedium),
+        child: isLoading
+            ? const SizedBox(
+                height: 22,
+                width: 22,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  color: Colors.white,
+                ),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    buttonText,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.4,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Icon(
+                    Icons.arrow_forward_rounded,
+                    size: 18,
+                    color: Colors.white,
+                  ),
+                ],
+              ),
       ),
     );
   }

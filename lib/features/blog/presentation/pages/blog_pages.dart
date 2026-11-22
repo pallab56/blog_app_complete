@@ -50,6 +50,78 @@ class _BlogPageState extends State<BlogPage> {
     }
   }
 
+  void _showEditNameDialog(BuildContext context, User user) {
+    final nameController = TextEditingController(text: user.name);
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: AppPallete.cardColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: const BorderSide(color: AppPallete.borderColor),
+          ),
+          title: const Text(
+            'Update Name',
+            style: TextStyle(
+              fontSize: 19,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          content: Form(
+            key: formKey,
+            child: TextFormField(
+              controller: nameController,
+              autofocus: true,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                hintText: 'Enter your name',
+                contentPadding: EdgeInsets.all(14),
+              ),
+              validator: (val) {
+                if (val == null || val.trim().isEmpty) {
+                  return 'Name cannot be empty';
+                }
+                return null;
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppPallete.gradient2,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onPressed: () {
+                if (formKey.currentState!.validate()) {
+                  final newName = nameController.text.trim();
+                  Navigator.pop(dialogContext);
+                  context.read<AuthBloc>().add(
+                    AuthUpdateUserName(
+                      userId: user.id,
+                      name: newName,
+                    ),
+                  );
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _confirmLogOut(BuildContext context) {
     showDialog(
       context: context,
@@ -283,16 +355,42 @@ class _BlogPageState extends State<BlogPage> {
                               ),
                               const SizedBox(width: 12),
                               Expanded(
-                                child: Text(
-                                  currentUser.name.isNotEmpty
-                                      ? currentUser.name
-                                      : 'No Name Set',
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Full Name',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: AppPallete.textSecondary,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      currentUser.name.isNotEmpty
+                                          ? currentUser.name
+                                          : 'No Name Set',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                        color: currentUser.name.isNotEmpty
+                                            ? Colors.white
+                                            : AppPallete.gradient3,
+                                      ),
+                                    ),
+                                  ],
                                 ),
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.edit_outlined,
+                                  color: AppPallete.gradient2,
+                                  size: 19,
+                                ),
+                                tooltip: 'Edit Name',
+                                onPressed: () {
+                                  _showEditNameDialog(parentContext, currentUser);
+                                },
                               ),
                             ],
                           ),

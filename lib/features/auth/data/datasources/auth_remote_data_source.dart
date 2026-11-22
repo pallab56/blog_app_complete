@@ -24,6 +24,11 @@ abstract interface class AuthRemoteDataSource {
     required File image,
     required String userId,
   });
+
+  Future<UserModel> updateUserName({
+    required String userId,
+    required String name,
+  });
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -46,7 +51,19 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (response.user == null) {
         throw ServerExceptions('User is null');
       }
-      return UserModel.fromJson(response.user!.toJson()).copyWith();
+
+      final currentUser = await getCurrentUserData();
+      if (currentUser != null) {
+        return currentUser;
+      }
+
+      final metadata = response.user!.userMetadata;
+      return UserModel(
+        id: response.user!.id,
+        name: metadata?['name'] ?? '',
+        email: response.user!.email ?? '',
+        profileImage: metadata?['profile_image'] ?? metadata?['avatar_url'],
+      );
     } catch (e) {
       throw ServerExceptions(e.toString());
     }
@@ -124,11 +141,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String userId,
   }) async {
     try {
-      final imagePath = 'profiles/$userId.jpg';
+      final imagePath = 'profile_${userId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
       await supabaseClient.storage.from('blog_images').upload(
         imagePath,
         image,
-        fileOptions: const FileOptions(upsert: true),
       );
 
       final imageUrl = supabaseClient.storage
@@ -137,11 +153,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       // Try updating profiles table
       try {
-        await supabaseClient.from('profiles').update({
+        await supabaseClient.from('profiles').upsert({
+          'id': userId,
           'profile_image': imageUrl,
-        }).eq('id', userId);
+        });
       } catch (_) {
-        // Table might not have profile_image column yet, fallback to user metadata
+        // Table might not have profile_image column yet or RLS, fallback to user metadata
       }
 
       // Update auth user metadata
@@ -159,6 +176,41 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         name: userResponse.user?.userMetadata?['name'] ?? '',
         email: userResponse.user?.email ?? '',
         profileImage: imageUrl,
+      );
+    } catch (e) {
+      throw ServerExceptions(e.toString());
+    }
+  }
+
+  @override
+  Future<UserModel> updateUserName({
+    required String userId,
+    required String name,
+  }) async {
+    try {
+      // 1. Update in profiles table if it exists
+      try {
+        await supabaseClient.from('profiles').upsert({
+          'id': userId,
+          'name': name,
+        });
+      } catch (_) {}
+
+      // 2. Update in auth user metadata
+      final userResponse = await supabaseClient.auth.updateUser(
+        UserAttributes(data: {'name': name}),
+      );
+
+      final currentUser = await getCurrentUserData();
+      if (currentUser != null) {
+        return currentUser.copyWith(name: name);
+      }
+
+      return UserModel(
+        id: userId,
+        name: name,
+        email: userResponse.user?.email ?? '',
+        profileImage: userResponse.user?.userMetadata?['profile_image'],
       );
     } catch (e) {
       throw ServerExceptions(e.toString());

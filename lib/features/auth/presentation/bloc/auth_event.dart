@@ -31,3 +31,13 @@ class AuthUploadProfileImage extends AuthEvent {
     required this.userId,
   });
 }
+
+class AuthUpdateUserName extends AuthEvent {
+  final String userId;
+  final String name;
+
+  AuthUpdateUserName({
+    required this.userId,
+    required this.name,
+  });
+}

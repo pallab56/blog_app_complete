@@ -4,6 +4,7 @@ import 'package:blog_rivaan/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:blog_rivaan/core/usecase/usecase.dart';
 import 'package:blog_rivaan/core/common/entity/user.dart';
 import 'package:blog_rivaan/features/auth/domain/usecases/current_user.dart';
+import 'package:blog_rivaan/features/auth/domain/usecases/update_user_name.dart';
 import 'package:blog_rivaan/features/auth/domain/usecases/upload_profile_image.dart';
 import 'package:blog_rivaan/features/auth/domain/usecases/user_log_in.dart';
 import 'package:blog_rivaan/features/auth/domain/usecases/user_log_out.dart';
@@ -20,6 +21,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final CurrentUser _currentUser;
   final UserLogOut _userLogOut;
   final UploadProfileImage _uploadProfileImage;
+  final UpdateUserName _updateUserName;
   final AppUserCubit _appUserCubit;
 
   AuthBloc({
@@ -28,12 +30,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required CurrentUser currentUser,
     required UserLogOut userLogOut,
     required UploadProfileImage uploadProfileImage,
+    required UpdateUserName updateUserName,
     required AppUserCubit appUserCubit,
   }) : _userSignUp = userSignUp,
        _userLogIn = userLogIn,
        _currentUser = currentUser,
        _userLogOut = userLogOut,
        _uploadProfileImage = uploadProfileImage,
+       _updateUserName = updateUserName,
        _appUserCubit = appUserCubit,
        super(AuthInitial()) {
     on<AuthEvent>((_, emit) => emit(AuthLoading()));
@@ -42,6 +46,24 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthIsUserLoggedIn>(_isUserLoggedIn);
     on<AuthLogOut>(_onAuthLogOut);
     on<AuthUploadProfileImage>(_onUploadProfileImage);
+    on<AuthUpdateUserName>(_onUpdateUserName);
+  }
+
+  void _onUpdateUserName(
+    AuthUpdateUserName event,
+    Emitter<AuthState> emit,
+  ) async {
+    final res = await _updateUserName(
+      UpdateUserNameParams(
+        userId: event.userId,
+        name: event.name,
+      ),
+    );
+
+    res.fold(
+      (failure) => emit(AuthFailure(msg: failure.msg)),
+      (user) => _emitAuthSuccess(user, emit),
+    );
   }
 
   void _onAuthLogOut(AuthLogOut event, Emitter<AuthState> emit) async {

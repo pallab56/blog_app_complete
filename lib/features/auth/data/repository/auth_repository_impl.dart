@@ -103,6 +103,27 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  @override
+  Future<Either<Failure, User>> updateUserName({
+    required String userId,
+    required String name,
+  }) async {
+    try {
+      if (!await (internetConnectionChecker.isConnected)) {
+        return left(Failure(msg: 'No Internet Connection'));
+      }
+      final user = await remoteDataSource.updateUserName(
+        userId: userId,
+        name: name,
+      );
+      return right(user);
+    } on sb.AuthException catch (e) {
+      return left(Failure(msg: e.message));
+    } on ServerExceptions catch (e) {
+      return left(Failure(msg: e.msg));
+    }
+  }
+
   Future<Either<Failure, User>> _getUser(Future<User> Function() fn) async {
     try {
       if (!await (internetConnectionChecker.isConnected)) {
