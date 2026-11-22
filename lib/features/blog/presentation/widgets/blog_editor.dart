@@ -1,4 +1,4 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:blog_rivaan/core/theme/app_pallete.dart';
 import 'package:flutter/material.dart';
 
 class BlogEditor extends StatelessWidget {
@@ -10,15 +10,25 @@ class BlogEditor extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
       validator: (value) {
-        if (value!.trim().isEmpty) {
+        if (value == null || value.trim().isEmpty) {
           return '$hintText is required';
         }
         return null;
       },
       controller: controller,
+      style: const TextStyle(
+        fontSize: 16,
+        color: Colors.white,
+      ),
       decoration: InputDecoration(
         hintText: hintText,
-        contentPadding: EdgeInsets.all(20),
+        hintStyle: const TextStyle(
+          color: AppPallete.textSecondary,
+          fontSize: 15,
+        ),
+        filled: true,
+        fillColor: AppPallete.cardColor,
+        contentPadding: const EdgeInsets.all(18),
       ),
       maxLines: null,
     );
