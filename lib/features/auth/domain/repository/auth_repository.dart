@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:blog_rivaan/core/error/failures.dart';
 import 'package:blog_rivaan/core/common/entity/user.dart';
 import 'package:fpdart/fpdart.dart';
@@ -15,4 +17,11 @@ abstract interface class AuthRepository {
   });
 
   Future<Either<Failure, User>> currentUser();
+
+  Future<Either<Failure, void>> logOut();
+
+  Future<Either<Failure, User>> uploadProfileImage({
+    required File image,
+    required String userId,
+  });
 }

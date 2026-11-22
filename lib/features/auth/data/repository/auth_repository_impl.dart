@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:blog_rivaan/core/error/exceptions.dart';
 import 'package:blog_rivaan/core/error/failures.dart';
 import 'package:blog_rivaan/core/network/connection_checker.dart';
@@ -21,7 +23,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, User>> currentUser() async {
     try {
       if (!await (internetConnectionChecker.isConnected)) {
-        final session = await remoteDataSource.userCurrentSession;
+        final session = remoteDataSource.userCurrentSession;
         if (session == null) {
           return left(Failure(msg: 'User Not Logged In!!!'));
         }
@@ -65,6 +67,40 @@ class AuthRepositoryImpl implements AuthRepository {
         password: password,
       ),
     );
+  }
+
+  @override
+  Future<Either<Failure, void>> logOut() async {
+    try {
+      if (!await (internetConnectionChecker.isConnected)) {
+        return left(Failure(msg: 'No Internet Connection'));
+      }
+      await remoteDataSource.logOut();
+      return right(null);
+    } on ServerExceptions catch (e) {
+      return left(Failure(msg: e.msg));
+    }
+  }
+
+  @override
+  Future<Either<Failure, User>> uploadProfileImage({
+    required File image,
+    required String userId,
+  }) async {
+    try {
+      if (!await (internetConnectionChecker.isConnected)) {
+        return left(Failure(msg: 'No Internet Connection'));
+      }
+      final user = await remoteDataSource.uploadProfileImage(
+        image: image,
+        userId: userId,
+      );
+      return right(user);
+    } on sb.StorageException catch (e) {
+      return left(Failure(msg: e.message));
+    } on ServerExceptions catch (e) {
+      return left(Failure(msg: e.msg));
+    }
   }
 
   Future<Either<Failure, User>> _getUser(Future<User> Function() fn) async {

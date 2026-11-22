@@ -5,10 +5,12 @@ import 'package:blog_rivaan/core/utils/show_snackbar.dart';
 import 'package:blog_rivaan/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:blog_rivaan/features/auth/presentation/widgets/auth_field.dart';
 import 'package:blog_rivaan/features/auth/presentation/widgets/auth_gradient_button.dart';
+import 'package:blog_rivaan/features/blog/presentation/pages/blog_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LogInPage extends StatefulWidget {
+  static route() => MaterialPageRoute(builder: (_) => const LogInPage());
   const LogInPage({super.key});
 
   @override
@@ -73,6 +75,10 @@ class _LogInPageState extends State<LogInPage> {
                             ),
                           );
                           debugPrint('loggedin');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => BlogPage()),
+                          );
                         }
                       },
                     ),
